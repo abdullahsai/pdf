@@ -7,7 +7,13 @@ COPY . ./
 RUN npm run build
 
 # Runtime stage
-FROM nginx:1.27-alpine
+#
+# The Brotli dynamic module distributed with Alpine currently targets Nginx
+# 1.26.x. Using the newer 1.27 base image causes a fatal version mismatch when
+# the module is loaded ("module ... version 1026003 instead of 1027005"). To
+# keep Brotli enabled we align the runtime image with the module's supported
+# version.
+FROM nginx:1.26-alpine
 RUN apk add --no-cache nginx-mod-http-brotli
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
